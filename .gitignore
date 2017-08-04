@@ -3,6 +3,7 @@
 **/*.orig
 **/.classpath
 **/.factorypath
+**/.settings
 
 
 target/

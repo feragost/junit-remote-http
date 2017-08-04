@@ -1,0 +1,8 @@
+**/*.class
+**/*.project
+**/*.orig
+**/.classpath
+**/.factorypath
+
+
+target/

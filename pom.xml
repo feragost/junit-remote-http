@@ -3,7 +3,7 @@
 
 	<groupId>br.ufsc.bridge</groupId>
 	<artifactId>junit-remote-http</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 
 	<name>JUnit Remote Execute over HTTP</name>
 
@@ -56,7 +56,7 @@
 		<connection>scm:git:git@github.com:laboratoriobridge/junit-remote-http.git</connection>
 		<url>scm:git:git@github.com:laboratoriobridge/junit-remote-http.git</url>
 		<developerConnection>scm:git:git@github.com:laboratoriobridge/junit-remote-http.git</developerConnection>
-		<tag>0.0.1-SNAPSHOT</tag>
+		<tag>0.0.2-SNAPSHOT</tag>
 	</scm>
 
 	<dependencies>

@@ -11,7 +11,7 @@
 
 	<servlet>
 		<servlet-name>JicUnitServlet</servlet-name>
-		<servlet-class>org.jicunit.framework.internal.JicUnitServlet</servlet-class>
+		<servlet-class>br.ufsc.bridge.junit.remote.http.internal.JicUnitServlet</servlet-class>
 	</servlet>
 
 	<!-- JICUnit mappings -->

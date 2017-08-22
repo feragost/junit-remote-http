@@ -23,20 +23,20 @@ import br.ufsc.bridge.junit.remote.http.internal.model.TestDescription.Status;
 
 /**
  * This class does the actual call to the servlet.
- * 
+ *
  * @author lucas
  *
  */
 public class JicUnitServletClient {
 
-  private static final String ENCODING = "UTF-8";
+	private static final String ENCODING = "UTF-8";
 
   public JicUnitServletClient() {
   }
 
   /**
    * Execute the test at the server
-   * 
+   *
    * @param containerUrl
    * @param testClassName
    * @param testDisplayName
@@ -47,38 +47,39 @@ public class JicUnitServletClient {
     DocumentBuilder builder;
     try {
       String url = containerUrl
-          + String.format("?%s=%s&%s=%s", TEST_CLASS_NAME_PARAM, testClassName,
+					+ String.format("?%s=%s&%s=%s", TEST_CLASS_NAME_PARAM, URLEncoder.encode(testClassName, ENCODING),
               TEST_NAME_PARAM, URLEncoder.encode(testDisplayName, ENCODING));
       builder = factory.newDocumentBuilder();
       Document document = builder.parse(url);
+
       return document;
     } catch (FileNotFoundException fe) {
       throw new RuntimeException("Could not find the test WAR at the server. Make sure jicunit.url points to the correct context root.", fe);
     } catch (ConnectException ce) {
       throw new RuntimeException("Could not connect to the server. Make sure jicunit.url points to the correct host and port.", ce);
     } catch (ParserConfigurationException | SAXException | IOException e) {
-      throw new RuntimeException("Could not run the test. Check the jicunit.url so it is correct.", e); 
+      throw new RuntimeException("Could not run the test. Check the jicunit.url so it is correct.", e);
     }
   }
 
   /**
    * Processes the actual XML result and generate exceptions in case there was
    * an issue on the server side.
-   * 
+   *
    * @param document
    * @throws Throwable
    */
   public void processResults(Document document) throws Throwable {
     Element root = document.getDocumentElement();
     root.normalize();
-    
+
     // top element should testcase which has attributes for the outcome of the test
     // e.g <testcase classname="TheClass" name="theName(TheClass)" status="Error"><exception message="message" type="type">some text</exception></testcase>
     NamedNodeMap attributes = root.getAttributes();
     String statusAsStr = attributes.getNamedItem("status").getNodeValue();
     Status status = Status.valueOf(statusAsStr);
     if (status.equals(Status.Error) || status.equals(Status.Failure)) {
-      throw getException(root, status);
+      throw this.getException(root, status);
     }
   }
 
@@ -96,9 +97,9 @@ public class JicUnitServletClient {
     if (typeNode != null) {
       type = typeNode.getNodeValue();
     }
-    
+
     String stackTrace = node.getTextContent();
-    
+
     if (errorOrFailure.equals(Status.Error)) {
       ExceptionWrapper e = new ExceptionWrapper(message, type, stackTrace);
       return e;

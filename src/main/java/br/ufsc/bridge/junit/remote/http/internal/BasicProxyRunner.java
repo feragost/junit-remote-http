@@ -14,7 +14,7 @@ import org.w3c.dom.Document;
 
 /**
  * This runner will forward all execution of the tests to a container
- * 
+ *
  * @author lucas
  *
  */
@@ -26,14 +26,14 @@ public class BasicProxyRunner extends BlockJUnit4ClassRunner {
 
   public BasicProxyRunner(Class<?> testClass, String containerUrl) throws InitializationError {
     super(testClass);
-    mContainerUrl = containerUrl;
+    this.mContainerUrl = containerUrl;
 
-    mClient = new JicUnitServletClient();
+    this.mClient = new JicUnitServletClient();
   }
 
   public BasicProxyRunner(Class<?> testClass, String containerUrl, Description description) throws InitializationError {
     this(testClass, containerUrl);
-    mDescription = description;
+    this.mDescription = description;
   }
 
   @Override
@@ -42,17 +42,17 @@ public class BasicProxyRunner extends BlockJUnit4ClassRunner {
     // when the real runner is executing in the container
   }
 
-  
+
   @Override
   public Description getDescription() {
-    if (mDescription != null) {
-      return mDescription;
+    if (this.mDescription != null) {
+      return this.mDescription;
     }
     else {
       return super.getDescription();
     }
   }
-  
+
   /**
    * This method will be called for the set of methods annotated with
    * Before/Test/After.
@@ -60,26 +60,27 @@ public class BasicProxyRunner extends BlockJUnit4ClassRunner {
   @Override
   protected void runChild(FrameworkMethod method, RunNotifier notifier) {
 
-    Description description = describeChild(method);
+    Description description = this.describeChild(method);
     if (method.getAnnotation(Ignore.class) != null) {
       notifier.fireTestIgnored(description);
       return;
     }
 
     notifier.fireTestStarted(description);
-    String testClassName = getTestClass().getJavaClass().getName();
+    String testClassName = this.getTestClass().getJavaClass().getName();
     String testName = description.getDisplayName();
 
     try {
-      Document result = mClient.runAtServer(mContainerUrl, testClassName, testName);
-      mClient.processResults(result);
+      Document result = this.mClient.runAtServer(this.mContainerUrl, testClassName, testName);
+      this.mClient.processResults(result);
     } catch (Throwable e) {
+			e.printStackTrace();
       notifier.fireTestFailure(new Failure(description, e));
     } finally {
       notifier.fireTestFinished(description);
     }
   }
-  
+
   /**
    * Suppress any BeforeClass annotation since it shall not be run locally.
    */

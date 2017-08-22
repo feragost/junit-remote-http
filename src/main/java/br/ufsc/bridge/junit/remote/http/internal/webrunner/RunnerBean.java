@@ -14,56 +14,55 @@ import br.ufsc.bridge.junit.remote.http.internal.model.TestDescription.Status;
 @Stateless
 public class RunnerBean {
 
-  public RunnerBean() {
-  }
+	public RunnerBean() {
+	}
 
-  @Asynchronous
-  @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-  public void runAsync(RunnerCallback runnerCallback, List<TestDescription> selectedTests) {
-    run(runnerCallback, selectedTests);
-  }
-  
-  
-  @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-  public void run(RunnerCallback runnerCallback, List<TestDescription> selectedTests) {
-    ClassLoader classLoader = runnerCallback.getClassLoader();
+	@Asynchronous
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public void runAsync(RunnerCallback runnerCallback, List<TestDescription> selectedTests) {
+		this.run(runnerCallback, selectedTests);
+	}
 
-    int currentTestCount = 0;
-    int errorCount = 0;
-    int failureCount = 0;
-    int ignoredCount = 0;
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public void run(RunnerCallback runnerCallback, List<TestDescription> selectedTests) {
+		ClassLoader classLoader = runnerCallback.getClassLoader();
 
-    for (TestDescription desc : selectedTests) {
-      if (runnerCallback.isRunning()) {
-        InContainerTestRunner runner = new InContainerTestRunner();
-        try {
-          runner.runTest(classLoader, desc);
-          currentTestCount++;
-          Status status = desc.getStatus();
-          switch (status) {
-          case Error:
-            errorCount++;
-            break;
-          case Failure:
-            failureCount++;
-            break;
-          case Ignored:
-            ignoredCount++;
-          default:
-            break;
-          }
-          // report progress
-          runnerCallback.setResult(currentTestCount, errorCount, failureCount, ignoredCount);
-        } catch (ClassNotFoundException e) {
-          // should not happen since the class is already loaded once
-        }
-      } else {
-        break;
-      }
-    }
+		int currentTestCount = 0;
+		int errorCount = 0;
+		int failureCount = 0;
+		int ignoredCount = 0;
 
-    runnerCallback.endRun();
+		for (TestDescription desc : selectedTests) {
+			if (runnerCallback.isRunning()) {
+				InContainerTestRunner runner = new InContainerTestRunner();
+				try {
+					runner.runTest(classLoader, desc);
+					currentTestCount++;
+					Status status = desc.getStatus();
+					switch (status) {
+					case Error:
+						errorCount++;
+						break;
+					case Failure:
+						failureCount++;
+						break;
+					case Ignored:
+						ignoredCount++;
+					default:
+						break;
+					}
+					// report progress
+					runnerCallback.setResult(currentTestCount, errorCount, failureCount, ignoredCount);
+				} catch (ReflectiveOperationException e) {
+					// should not happen since the class is already loaded once
+				}
+			} else {
+				break;
+			}
+		}
 
-  }
+		runnerCallback.endRun();
+
+	}
 
 }

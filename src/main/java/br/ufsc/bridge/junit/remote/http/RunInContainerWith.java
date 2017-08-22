@@ -16,7 +16,7 @@ import br.ufsc.bridge.junit.remote.http.internal.ParameterizedProxyRunner;
  * with <code>&#064;RunInContainerWith</code>, JICUnit will invoke the class it references to run the
  * tests in that class instead of the default runner in JUnit. 
  * <p>
- * The annotation will only be picked up if the class is also annotated with {@link RunWith}({@link JicUnitRunner}.class)
+ * The annotation will only be picked up if the class is also annotated with {@link RunWith}({@link RemoteHttpRunner}.class)
  * <p>
  * To for instance use the Suite runner on a suite that shall be run in the JEE container:
  * <pre>

@@ -50,7 +50,7 @@ public class JicUnitServlet extends HttpServlet {
 
     try {
       testDescription = testRunner.runTest(getClassLoader(), testDescription);
-    } catch (ClassNotFoundException e) {
+    } catch (ReflectiveOperationException e) {
       resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Class not found: " + e.getMessage());
       return;
     }

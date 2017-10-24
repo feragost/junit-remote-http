@@ -59,8 +59,7 @@ public class InContainerTestRunner extends RunListener {
 	}
 
 	private TestDescription runTest(ClassLoader classLoader, String testClassName, Filter filter)
-			throws ReflectiveOperationException,
-			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			throws ReflectiveOperationException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Class<?> clazz = classLoader.loadClass(testClassName);
 
 		Class<? extends Runner> runnerClazz = JUnit4.class;
@@ -104,18 +103,24 @@ public class InContainerTestRunner extends RunListener {
 
 	@Override
 	public void testFailure(Failure failure) throws Exception {
-		Throwable exception = failure.getException();
-		ExceptionDescription exceptionDescription = new ExceptionDescription(failure.getMessage(), exception.getClass().getName(),
-				ExceptionUtil.filterdStackTrace(failure.getTrace()));
-		this.mTestDescription.setExceptionDescription(exceptionDescription);
 
+		Throwable exception = failure.getException();
+
+		Status exceptionStatus = Status.Error;
 		if (exception instanceof AssertionError) {
-			// -> this is a failure
-			this.mTestDescription.setStatus(Status.Failure);
-		} else {
-			// -> this is an error
-			this.mTestDescription.setStatus(Status.Error);
+			exceptionStatus = Status.Failure;
 		}
+
+		if (this.mTestDescription.getStatus() == null || exceptionStatus == Status.Error) {
+			this.mTestDescription.setStatus(exceptionStatus);
+		}
+
+		String message = failure.getMessage();
+		String name = exception.getClass().getName();
+		String filterdStackTrace = ExceptionUtil.filterdStackTrace(failure.getTrace());
+		ExceptionDescription exceptionDescription = new ExceptionDescription(message, name, filterdStackTrace, exceptionStatus);
+
+		this.mTestDescription.addExceptionDescription(exceptionDescription);
 
 	}
 

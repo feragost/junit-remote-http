@@ -70,7 +70,7 @@ public class JicUnitServletClient {
 	 * @param document
 	 * @throws Throwable
 	 */
-	public void processResults(Document document) throws Throwable {
+	public List<Throwable> processResults(Document document) throws Throwable {
 		Element root = document.getDocumentElement();
 		root.normalize();
 
@@ -81,11 +81,9 @@ public class JicUnitServletClient {
 		Status status = Status.valueOf(statusAsStr);
 
 		if (status.equals(Status.Error) || status.equals(Status.Failure)) {
-			List<Throwable> exceptions = this.getExceptions(root);
-			for (Throwable exception : exceptions) {
-				throw exception;
-			}
-
+			return this.getExceptions(root);
+		} else {
+			return new LinkedList<>();
 		}
 	}
 
@@ -93,7 +91,8 @@ public class JicUnitServletClient {
 		List<Throwable> exceptions = new LinkedList<>();
 		NodeList nodes = root.getElementsByTagName("exceptions");
 		for (int i = 0; i < nodes.getLength(); i++) {
-			exceptions.add(this.getException(root));
+			Node item = nodes.item(i);
+			exceptions.add(this.getException(item));
 		}
 		return exceptions;
 	}
@@ -125,7 +124,7 @@ public class JicUnitServletClient {
 			return e;
 		} else {
 			AssertionErrorWrapper e = new AssertionErrorWrapper(message, type, stackTrace);
-			throw e;
+			return e;
 		}
 
 	}

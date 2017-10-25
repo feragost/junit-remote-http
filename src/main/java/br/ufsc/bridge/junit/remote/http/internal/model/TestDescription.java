@@ -43,7 +43,6 @@ public class TestDescription {
 	private Long mTime;
 
 	private List<ExceptionDescription> mExceptionDescriptions = new ArrayList<>();
-	// private ExceptionDescription mExceptionDescription;
 	private List<TestDescription> mTestDescriptions = new ArrayList<>();
 
 	/**
@@ -62,7 +61,6 @@ public class TestDescription {
 		this.mStartTime = 0;
 		this.mTime = null;
 		this.mTestDescriptions.clear();
-		// mExceptionDescription = null;
 
 		if (this.isSuite()) {
 			for (TestDescription testDescription : this.mTestDescriptions) {
@@ -191,15 +189,6 @@ public class TestDescription {
 	public void addExceptionDescription(ExceptionDescription exceptionDescription) {
 		this.mExceptionDescriptions.add(exceptionDescription);
 	}
-
-	// @XmlElement(name = "exception")
-	// public ExceptionDescription getExceptionDescription() {
-	// return mExceptionDescription;
-	// }
-	//
-	// public void setExceptionDescription(ExceptionDescription exceptionDescription) {
-	// mExceptionDescription = exceptionDescription;
-	// }
 
 	@XmlTransient
 	public List<TestDescription> getTestDescriptions() {

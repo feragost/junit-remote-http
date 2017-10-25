@@ -20,80 +20,84 @@ import org.w3c.dom.Document;
  */
 public class BasicProxyRunner extends BlockJUnit4ClassRunner {
 
-  private String mContainerUrl;
-  private JicUnitServletClient mClient;
-  private Description mDescription;
+	private String mContainerUrl;
+	private JicUnitServletClient mClient;
+	private Description mDescription;
 
-  public BasicProxyRunner(Class<?> testClass, String containerUrl) throws InitializationError {
-    super(testClass);
-    this.mContainerUrl = containerUrl;
+	public BasicProxyRunner(Class<?> testClass, String containerUrl) throws InitializationError {
+		super(testClass);
+		this.mContainerUrl = containerUrl;
 
-    this.mClient = new JicUnitServletClient();
-  }
+		this.mClient = new JicUnitServletClient();
+	}
 
-  public BasicProxyRunner(Class<?> testClass, String containerUrl, Description description) throws InitializationError {
-    this(testClass, containerUrl);
-    this.mDescription = description;
-  }
+	public BasicProxyRunner(Class<?> testClass, String containerUrl, Description description) throws InitializationError {
+		this(testClass, containerUrl);
+		this.mDescription = description;
+	}
 
-  @Override
-  protected void collectInitializationErrors(List<Throwable> errors) {
-    // bypass all validation of the test class since that will anyway be done
-    // when the real runner is executing in the container
-  }
+	@Override
+	protected void collectInitializationErrors(List<Throwable> errors) {
+		// bypass all validation of the test class since that will anyway be done
+		// when the real runner is executing in the container
+	}
 
+	@Override
+	public Description getDescription() {
+		if (this.mDescription != null) {
+			return this.mDescription;
+		} else {
+			return super.getDescription();
+		}
+	}
 
-  @Override
-  public Description getDescription() {
-    if (this.mDescription != null) {
-      return this.mDescription;
-    }
-    else {
-      return super.getDescription();
-    }
-  }
+	/**
+	 * This method will be called for the set of methods annotated with
+	 * Before/Test/After.
+	 */
+	@Override
+	protected void runChild(FrameworkMethod method, RunNotifier notifier) {
 
-  /**
-   * This method will be called for the set of methods annotated with
-   * Before/Test/After.
-   */
-  @Override
-  protected void runChild(FrameworkMethod method, RunNotifier notifier) {
+		Description description = this.describeChild(method);
+		if (method.getAnnotation(Ignore.class) != null) {
+			notifier.fireTestIgnored(description);
+			return;
+		}
 
-    Description description = this.describeChild(method);
-    if (method.getAnnotation(Ignore.class) != null) {
-      notifier.fireTestIgnored(description);
-      return;
-    }
+		notifier.fireTestStarted(description);
+		String testClassName = this.getTestClass().getJavaClass().getName();
+		String testName = description.getDisplayName();
 
-    notifier.fireTestStarted(description);
-    String testClassName = this.getTestClass().getJavaClass().getName();
-    String testName = description.getDisplayName();
-
-    try {
-      Document result = this.mClient.runAtServer(this.mContainerUrl, testClassName, testName);
-      this.mClient.processResults(result);
-    } catch (Throwable e) {
+		try {
+			Document result = this.mClient.runAtServer(this.mContainerUrl, testClassName, testName);
+			List<Throwable> processResults = this.mClient.processResults(result);
+			for (Throwable failure : processResults) {
+				notifier.fireTestFailure(new Failure(description, failure));
+				failure.printStackTrace();
+				System.err.println();
+				System.err.println();
+			}
+		} catch (Throwable e) {
 			e.printStackTrace();
-      notifier.fireTestFailure(new Failure(description, e));
-    } finally {
-      notifier.fireTestFinished(description);
-    }
-  }
+			notifier.fireTestFailure(new Failure(description, e));
+		} finally {
+			notifier.fireTestFinished(description);
+		}
+	}
 
-  /**
-   * Suppress any BeforeClass annotation since it shall not be run locally.
-   */
-  @Override
-  protected Statement withBeforeClasses(Statement statement) {
-    return statement;
-  }
+	/**
+	 * Suppress any BeforeClass annotation since it shall not be run locally.
+	 */
+	@Override
+	protected Statement withBeforeClasses(Statement statement) {
+		return statement;
+	}
 
-  /**
-   * Suppress any AfterClass annotation since it shall not be run locally.
-   */
-  @Override
-  protected Statement withAfterClasses(Statement statement) {
-    return statement;
-  }
+	/**
+	 * Suppress any AfterClass annotation since it shall not be run locally.
+	 */
+	@Override
+	protected Statement withAfterClasses(Statement statement) {
+		return statement;
+	}
 }

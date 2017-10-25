@@ -10,216 +10,207 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import br.ufsc.bridge.junit.remote.http.internal.InContainerTestRunner;
 
-
 /**
  * Describes a test and it status or a collection of tests.
  * Used in the GUI and in the {@link InContainerTestRunner}
- * 
- * 
+ *
+ *
  * @author lucas
  *
  */
 @XmlRootElement(name = "testcase")
 public class TestDescription {
-  
-  public enum Status { OK, Ignored, Error, Failure };
- 
 
-  /**
-   * Display name of the test like "testSome(com.example.SomeTest)" or "com.example.SomeTest"
-   */
-  private String mDisplayName;
-  private String mClassName;
-  
-  private Status mStatus;
-  
-  private long mStartTime;
-  /**
-   * Execution time in ms
-   */
-  private Long mTime;
+	public enum Status {
+		OK,
+		Ignored,
+		Error,
+		Failure
+	};
 
-  private ExceptionDescription mExceptionDescription;
-  private List<TestDescription> mTestDescriptions = new ArrayList<TestDescription>();
-  
-  /**
-   * Needed by JAXB, not supposed to be used.
-   */
-  public TestDescription() {
-  }
-  
-  public TestDescription(String displayName, String className) {
-    mDisplayName = displayName;
-    mClassName = className;
-  }
+	/**
+	 * Display name of the test like "testSome(com.example.SomeTest)" or "com.example.SomeTest"
+	 */
+	private String mDisplayName;
+	private String mClassName;
 
-  public void clearResult() {
-    mStatus = null;
-    mStartTime = 0;
-    mTime = null;
-    mExceptionDescription = null;
-    
-    if (isSuite()) {
-      for (TestDescription testDescription : mTestDescriptions) {
-        testDescription.clearResult();
-      }
-    }
-    
-  }
-  
-  /**
-   * 
-   * @return the display name
-   */
-  @XmlAttribute(name="name")
-  public String getDisplayName() {
-    return mDisplayName;
-  }
+	private Status mStatus;
 
+	private long mStartTime;
+	/**
+	 * Execution time in ms
+	 */
+	private Long mTime;
 
-  public void setDisplayName(String displayName) {
-    mDisplayName = displayName;
-  }
-  
-  /**
-   * Like DisplayName but omitting the class name part
-   */
-  @XmlTransient
-  public String getShortName() {
-    if (mDisplayName.indexOf('(')  != -1) {
-      return mDisplayName.substring(0, mDisplayName.lastIndexOf('('));
-    }
-    else {
-      return mDisplayName;
-    }
-  }
-  
-  
-  /**
-   * @return name of the test class
-   */
-  @XmlAttribute(name="classname")
-  public String getClassName() {
-    return mClassName;
-  }
-  
-  @XmlAttribute
-  public Status getStatus() {
-    if (isSuite()) {
-      // aggregate status, Error and Failure have precedence
-      Status status = null;
-      for (TestDescription testDescription : mTestDescriptions) {
-        Status childStatus = testDescription.getStatus();
-        if (childStatus != null) {
-          if (childStatus.equals(Status.Error) || childStatus.equals(Status.Failure)) {
-            status = childStatus;
-          }
-          else {
-            // only set to childStatus if aggregate status has not ever been set
-            if (status == null) {
-              status = childStatus;
-            }
-          }
-        }
-      }
-      return status;
-    }
-    else {
-      return mStatus;
-    }
-  }
+	private List<ExceptionDescription> mExceptionDescriptions = new ArrayList<>();
+	private List<TestDescription> mTestDescriptions = new ArrayList<>();
 
-  public void setStatus(Status status) {
-    mStatus = status;
-  }
-  
-  @XmlTransient
-  public long getStartTime() {
-    return mStartTime;
-  }
-  
-  public void setStartTime(long startTime) {
-    mStartTime = startTime;
-  }
-  
-  /**
-   * 
-   * @return execution time in ms
-   */
-  @XmlAttribute
-  public Long getTime() {
-    return mTime;
-  }
+	/**
+	 * Needed by JAXB, not supposed to be used.
+	 */
+	public TestDescription() {
+	}
 
-  public void setTime(Long time) {
-    mTime = time;
-  }
-  
-  /**
-   * 
-   * @return execution time in seconds
-   */
-  @XmlTransient
-  public Double getTimeAsSeconds() {
-    if (isSuite()) {
-      // aggregate time
-      Double time = null;
-      for (TestDescription testDescription : mTestDescriptions) {
-        Double childTime = testDescription.getTimeAsSeconds();
-        if (childTime != null) {
-          if (time == null) {
-            time = new Double(0);
-          }
-          time = time + childTime;
-        }
-      }
-      return time;
-    }
-    else {
-      if (mTime != null) {
-        return ((double)mTime) / 1000;
-      }
-      else {
-        return null;
-      }
-    }
-  }
+	public TestDescription(String displayName, String className) {
+		this.mDisplayName = displayName;
+		this.mClassName = className;
+	}
 
+	public void clearResult() {
+		this.mStatus = null;
+		this.mStartTime = 0;
+		this.mTime = null;
+		this.mTestDescriptions.clear();
 
-  @XmlElement(name = "exception")
-  public ExceptionDescription getExceptionDescription() {
-    return mExceptionDescription;
-  }
-  
-  public void setExceptionDescription(ExceptionDescription exceptionDescription) {
-    mExceptionDescription = exceptionDescription;
-  }
+		if (this.isSuite()) {
+			for (TestDescription testDescription : this.mTestDescriptions) {
+				testDescription.clearResult();
+			}
+		}
 
-  @XmlTransient
-  public List<TestDescription> getTestDescriptions() {
-    return mTestDescriptions;
-  }
+	}
 
+	/**
+	 *
+	 * @return the display name
+	 */
+	@XmlAttribute(name = "name")
+	public String getDisplayName() {
+		return this.mDisplayName;
+	}
 
-  public void setTestDescriptions(List<TestDescription> testDescriptions) {
-    mTestDescriptions = testDescriptions;
-  }
+	public void setDisplayName(String displayName) {
+		this.mDisplayName = displayName;
+	}
 
+	/**
+	 * Like DisplayName but omitting the class name part
+	 */
+	@XmlTransient
+	public String getShortName() {
+		if (this.mDisplayName.indexOf('(') != -1) {
+			return this.mDisplayName.substring(0, this.mDisplayName.lastIndexOf('('));
+		} else {
+			return this.mDisplayName;
+		}
+	}
 
-  public void addTestDescription(TestDescription testDescriptionChild) {
-    mTestDescriptions.add(testDescriptionChild);
-  }
-  
-  @XmlTransient
-  public boolean isSuite() {
-    return mTestDescriptions.size() > 0;
-  }
-  
-  
+	/**
+	 * @return name of the test class
+	 */
+	@XmlAttribute(name = "classname")
+	public String getClassName() {
+		return this.mClassName;
+	}
 
-  @Override
-  public String toString() {
-    return mDisplayName;
-  }
+	@XmlAttribute
+	public Status getStatus() {
+		if (this.isSuite()) {
+			// aggregate status, Error and Failure have precedence
+			Status status = null;
+			for (TestDescription testDescription : this.mTestDescriptions) {
+				Status childStatus = testDescription.getStatus();
+				if (childStatus != null) {
+					if (childStatus.equals(Status.Error) || childStatus.equals(Status.Failure)) {
+						status = childStatus;
+					} else {
+						// only set to childStatus if aggregate status has not ever been set
+						if (status == null) {
+							status = childStatus;
+						}
+					}
+				}
+			}
+			return status;
+		} else {
+			return this.mStatus;
+		}
+	}
+
+	public void setStatus(Status status) {
+		this.mStatus = status;
+	}
+
+	@XmlTransient
+	public long getStartTime() {
+		return this.mStartTime;
+	}
+
+	public void setStartTime(long startTime) {
+		this.mStartTime = startTime;
+	}
+
+	/**
+	 *
+	 * @return execution time in ms
+	 */
+	@XmlAttribute
+	public Long getTime() {
+		return this.mTime;
+	}
+
+	public void setTime(Long time) {
+		this.mTime = time;
+	}
+
+	/**
+	 *
+	 * @return execution time in seconds
+	 */
+	@XmlTransient
+	public Double getTimeAsSeconds() {
+		if (this.isSuite()) {
+			// aggregate time
+			Double time = null;
+			for (TestDescription testDescription : this.mTestDescriptions) {
+				Double childTime = testDescription.getTimeAsSeconds();
+				if (childTime != null) {
+					if (time == null) {
+						time = new Double(0);
+					}
+					time = time + childTime;
+				}
+			}
+			return time;
+		} else {
+			if (this.mTime != null) {
+				return (double) this.mTime / 1000;
+			} else {
+				return null;
+			}
+		}
+	}
+
+	@XmlElement(name = "exceptions")
+	public List<ExceptionDescription> getExceptionDescription() {
+		return this.mExceptionDescriptions;
+	}
+
+	public void addExceptionDescription(ExceptionDescription exceptionDescription) {
+		this.mExceptionDescriptions.add(exceptionDescription);
+	}
+
+	@XmlTransient
+	public List<TestDescription> getTestDescriptions() {
+		return this.mTestDescriptions;
+	}
+
+	public void setTestDescriptions(List<TestDescription> testDescriptions) {
+		this.mTestDescriptions = testDescriptions;
+	}
+
+	public void addTestDescription(TestDescription testDescriptionChild) {
+		this.mTestDescriptions.add(testDescriptionChild);
+	}
+
+	@XmlTransient
+	public boolean isSuite() {
+		return this.mTestDescriptions.size() > 0;
+	}
+
+	@Override
+	public String toString() {
+		return this.mDisplayName;
+	}
 
 }

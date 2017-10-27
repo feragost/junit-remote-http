@@ -5,6 +5,7 @@ import static br.ufsc.bridge.junit.remote.http.internal.JicUnitServlet.TEST_NAME
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.LinkedList;
@@ -13,6 +14,11 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,6 +58,7 @@ public class JicUnitServletClient {
 					URLEncoder.encode(testDisplayName, ENCODING));
 			builder = factory.newDocumentBuilder();
 			Document document = builder.parse(url);
+			String string = this.getString(document);
 
 			return document;
 		} catch (FileNotFoundException fe) {
@@ -128,4 +135,20 @@ public class JicUnitServletClient {
 		}
 
 	}
+
+	public String getString(Document doc) {
+		try {
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer = tf.newTransformer();
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			StringWriter writer = new StringWriter();
+			transformer.transform(new DOMSource(doc), new StreamResult(writer));
+			String output = writer.getBuffer().toString().replaceAll("\n|\r", "");
+			return output;
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		return null;
+	}
+
 }

@@ -19,6 +19,7 @@ public class ExceptionDescription {
 		this.mMessage = message;
 		this.mType = type;
 		this.mStackTrace = stackTrace;
+		this.mStatus = status;
 	}
 
 	@XmlAttribute
@@ -51,7 +52,8 @@ public class ExceptionDescription {
 		this.mStackTrace = stackTrace;
 	}
 
-	@XmlAttribute
+	// @XmlAttribute
+	@XmlAttribute(name = "status")
 	public Status getStatus() {
 		return this.mStatus;
 	}

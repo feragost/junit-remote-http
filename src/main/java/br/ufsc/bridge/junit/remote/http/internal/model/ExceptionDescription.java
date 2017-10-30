@@ -10,8 +10,10 @@ public class ExceptionDescription {
 	private String mType;
 	private String mStackTrace;
 	private Status mStatus;
+	private String mSerialThroable;
 
 	public ExceptionDescription() {
+
 	}
 
 	public ExceptionDescription(String message, String type, String stackTrace, Status status) {
@@ -52,7 +54,6 @@ public class ExceptionDescription {
 		this.mStackTrace = stackTrace;
 	}
 
-	// @XmlAttribute
 	@XmlAttribute(name = "status")
 	public Status getStatus() {
 		return this.mStatus;
@@ -60,6 +61,15 @@ public class ExceptionDescription {
 
 	public void setStatus(Status status) {
 		this.mStatus = status;
+	}
+
+	@XmlAttribute(name = "throwable")
+	public String getSerialThrowable() {
+		return this.mSerialThroable;
+	}
+
+	public void setSerialThrowable(String t) {
+		this.mSerialThroable = t;
 	}
 
 	@Override

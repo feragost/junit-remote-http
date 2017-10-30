@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import br.ufsc.bridge.junit.remote.http.Utils;
 import br.ufsc.bridge.junit.remote.http.internal.model.TestDescription.Status;
 
 /**
@@ -58,7 +59,7 @@ public class JicUnitServletClient {
 					URLEncoder.encode(testDisplayName, ENCODING));
 			builder = factory.newDocumentBuilder();
 			Document document = builder.parse(url);
-			String string = this.getString(document);
+			// String string = this.getString(document);
 
 			return document;
 		} catch (FileNotFoundException fe) {
@@ -126,7 +127,16 @@ public class JicUnitServletClient {
 
 		String stackTrace = node.getTextContent();
 
-		if (status.equals(Status.Error.toString())) {
+		Throwable throwable = null;
+		Node throwableNode = attributes.getNamedItem("throwable");
+		if (throwableNode != null) {
+			String stringSerialThrowable = throwableNode.getNodeValue();
+			throwable = this.unserializeThrowable(stringSerialThrowable, type);
+		}
+
+		if (throwable != null) {
+			return throwable;
+		} else if (status.equals(Status.Error.toString())) {
 			ExceptionWrapper e = new ExceptionWrapper(message, type, stackTrace);
 			return e;
 		} else {
@@ -134,6 +144,20 @@ public class JicUnitServletClient {
 			return e;
 		}
 
+	}
+
+	private Throwable unserializeThrowable(String serialThrowable, String type) {
+		try {
+			Class<? extends Throwable> klazz = (Class<? extends Throwable>) Class.forName(type);
+			return Utils.deserialize(serialThrowable, klazz);
+		} catch (ClassNotFoundException e) {
+			// e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	public String getString(Document doc) {

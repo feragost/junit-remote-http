@@ -119,6 +119,7 @@ public class InContainerTestRunner extends RunListener {
 		String name = exception.getClass().getName();
 		String filterdStackTrace = ExceptionUtil.filterdStackTrace(failure.getTrace());
 		ExceptionDescription exceptionDescription = new ExceptionDescription(message, name, filterdStackTrace, exceptionStatus);
+		exceptionDescription.setSerialThrowable(Utils.serialize(failure.getException()));
 
 		this.mTestDescription.addExceptionDescription(exceptionDescription);
 

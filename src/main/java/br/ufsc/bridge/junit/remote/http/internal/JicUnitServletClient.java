@@ -59,7 +59,6 @@ public class JicUnitServletClient {
 					URLEncoder.encode(testDisplayName, ENCODING));
 			builder = factory.newDocumentBuilder();
 			Document document = builder.parse(url);
-			// String string = this.getString(document);
 
 			return document;
 		} catch (FileNotFoundException fe) {
@@ -151,7 +150,6 @@ public class JicUnitServletClient {
 			Class<? extends Throwable> klazz = (Class<? extends Throwable>) Class.forName(type);
 			return Utils.deserialize(serialThrowable, klazz);
 		} catch (ClassNotFoundException e) {
-			// e.printStackTrace();
 			return null;
 		} catch (IOException e) {
 			e.printStackTrace();
